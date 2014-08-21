@@ -30,4 +30,4 @@ If you specify no options, you'll be prompted to select a folder or show the hel
 Installation
 =====
 
-`npm install onesky-converter`
+`npm install -g onesky-converter`

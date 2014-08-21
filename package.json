@@ -1,0 +1,28 @@
+{
+  "name": "onesky-converter",
+  "version": "1.0.0",
+  "description": "Script for converting onesky translations",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/weheartit/onesky-converter.git"
+  },
+  "author": "Jesse Ditson <jesse.ditson@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/weheartit/onesky-converter/issues"
+  },
+  "bin": {
+    "onesky-converter": "./index.js"
+  },
+  "homepage": "https://github.com/weheartit/onesky-converter",
+  "dependencies": {
+    "colors": "^0.6.2",
+    "glob": "^4.0.5",
+    "terminal-menu": "^0.3.2",
+    "unzip": "^0.1.9"
+  }
+}

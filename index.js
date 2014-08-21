@@ -149,7 +149,7 @@ var replaceInFile = function(file,find,replace){
   var m;
   while(m = find.exec(content)){
     console.log((' -> using english translation for ' + m[1]).grey);
-    content.replace(find,replace);
+    content = content.replace(find,replace);
   }
   fs.writeFileSync(file,content,'utf8');
 }

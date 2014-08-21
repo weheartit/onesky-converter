@@ -180,7 +180,7 @@ var sanitizeOneSkyLocalizationFolder = function(folder){
   var localizationFiles = glob.sync(path.join(folder,'**/Localizable.strings'));
   localizationFiles.forEach(function(file){
     console.log(('Sanitizing ' + file).cyan);
-    var regex = /\/\* No translations available yet: ([^;]+); \*\//g;
+    var regex = /\/\* No translations available yet: ([^;]+;) \*\//g;
     replaceInFile(file,regex,'$1');
   });
 };

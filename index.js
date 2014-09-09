@@ -6,6 +6,9 @@ var path = require('path');
 var glob = require('glob');
 var unzip = require('unzip');
 var colors = require('colors');
+var onesky = require('./onesky');
+var utils = require('./utils');
+var mkdirp = require('mkdirp');
 
 var args = process.argv.slice(2);
 var hasArg = function(regex){
@@ -33,7 +36,9 @@ var noDelete = hasArg(/(^|[^\w])(-n|--no-delete)([^\w]|$)/);
 var menuInfo = { width: 40, x: 4, y: 4 };
 var menu, paths;
 
-var menuSelected = function(label) {
+var menuSelected = function(label,opts) {
+  var homedir = process.env['HOME'] ? path.join(process.env['HOME'],'Downloads') : false;
+  var file = fs.existsSync(label) ? label : paths && paths[label] && fs.existsSync(paths[label]) ? paths[label] : false;
   if(menu){
     menu.reset();
     menu.close();
@@ -48,6 +53,23 @@ var menuSelected = function(label) {
     menu.reset();
     menu.close();
     return;
+  } else if (label == 'DOWNLOAD FROM ONESKY'){
+    var folder = opts.folder;
+    if(!folder){
+      folder = file || homedir;
+      if(!folder) return console.error('Unable to find home directory and no folder was specified with -i');
+    }
+    folder = path.join(folder,'iOS');
+    menu.reset();
+    menu.close();
+    mkdirp(folder);
+    onesky.download(folder,function(err){
+      if(err){
+        throw err;
+        return;
+      }
+      menuSelected(folder);
+    });
   } else if (!label){
     menu.write('~~~ ONESKY CONVERTER ~~~\n');
     if(specifiedInput){
@@ -56,18 +78,18 @@ var menuSelected = function(label) {
       return menuSelected(specifiedInput[3]);
     } else {
       menu.write('-- SELECT AN INPUT FOLDER --\n');
-      var homedir = process.env['HOME'];
       if(!homedir){
         menu.reset();
         menu.close();
         return console.error('Error: no home directory found. Cannot look for your Downloads folder.'.red);
       }
-      var files = glob.sync(path.join(homedir,'Downloads','**/iOS*'));
+      var files = glob.sync(path.join(homedir,'**/iOS*'));
       if(!files.length){
         menu.reset();
         menu.close();
-        return console.error('Error: could not find any directories called iOS in the Downloads folder.'.red);
+        return menuSelected('DOWNLOAD FROM ONESKY', { folder : homedir });
       } else {
+        menu.add('DOWNLOAD FROM ONESKY');
         paths = {};
         files.forEach(function(file){
           var trimmed = path.basename(file);
@@ -80,9 +102,8 @@ var menuSelected = function(label) {
   } else {
     menu.reset();
     menu.close();
-    var file = fs.existsSync(label) ? label : paths && paths[label] && fs.existsSync(paths[label]) ? paths[label] : false;
     if(!file){
-      return console.error(('Error: specified file "' + label + '" does not exist.').red);
+      return menuSelected('DOWNLOAD FROM ONESKY', { folder : label });
     } else {
       var destinationFolder = nearestLocalizationsFolder();
       if(destinationFolder instanceof Error) return console.error(('Error: ' + err.message).red);
@@ -130,6 +151,7 @@ var performConversion = function(source,dest,deleteFiles){
   var folders = glob.sync(path.join(source,'**/*.lproj'));
   folders.forEach(function(folder){
     var file = path.join(folder,'Localizable.strings');
+    mkdirp(path.join(dest,path.basename(folder)));
     var destFile = path.join(dest,path.basename(folder),'Localizable.strings');
     console.log((file + ' -> ' + destFile).grey);
     fs.writeFileSync(destFile, fs.readFileSync(file));
@@ -186,21 +208,13 @@ var sanitizeOneSkyLocalizationFolder = function(folder){
 };
 
 var rootTest = /(\.xcworkspace|\.xcodeproj|^\.oneskyconfig)$/i;
-var nearestLocalizationsFolder = function(currentDir){
-  if(!currentDir) currentDir = process.cwd();
-  var files = fs.readdirSync(currentDir);
-  var atRoot = files.some(function(file){
-    return rootTest.test(file);
-  });
-  if(!atRoot){
-    return nearestLocalizationsFolder(path.join(currentDir,'..'));
+var nearestLocalizationsFolder = function(){
+  var currentDir = utils.nearestFolderPassingTest(rootTest);
+  var localizationFiles = glob.sync(path.join(currentDir,'**/Support/*.lproj'));
+  if(!localizationFiles.length){
+    return new Error('Could not find localizations near your current directory. Are you currently in an iOS project directory?');
   } else {
-    var localizationFiles = glob.sync(path.join(currentDir,'**/Support/*.lproj'));
-    if(!localizationFiles.length){
-      return new Error('Could not find localizations near your current directory. Are you currently in an iOS project directory?');
-    } else {
-      return path.dirname(localizationFiles[0]);
-    }
+    return path.dirname(localizationFiles[0]);
   }
 };
 

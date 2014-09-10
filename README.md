@@ -26,7 +26,7 @@ Usage
 
 If you specify no options, you'll be given a sweet DOS-style prompt to choose what you would like to do:
 
-!(DOS TERMINAL)[http://cl.ly/image/1v3T1W1z451z/Image%202014-09-09%20at%207.08.04%20PM.png]
+![DOS TERMINAL](http://cl.ly/image/1v3T1W1z451z/Image%202014-09-09%20at%207.08.04%20PM.png)
 
 ```
 usage: onesky-converter [OPTIONS]

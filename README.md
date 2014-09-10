@@ -15,6 +15,7 @@ Sanitization refers to this process:
 
 1. Renames folders in it to have .lproj extensions
 2. copies pr-BR translations to pr (if they're there)
+3. Changes 'zh-CN' to 'zh-Hans' and 'zh-TW' to 'zh-Hant' (when requested via the API, OneSky neither respects nor reports custom Locales).
 
 Once either download or unpack processes are complete, it removes the iOS zip or folder. (you can avoid this by using `-n` or `--no-delete`)
 

@@ -1,6 +1,6 @@
 {
   "name": "onesky-converter",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Script for converting onesky translations",
   "main": "index.js",
   "scripts": {
